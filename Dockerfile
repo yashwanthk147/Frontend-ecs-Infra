@@ -1,10 +1,13 @@
-FROM centos/httpd
+FROM node As Builder
+COPY . .
+RUN npm i
+RUN npm run build
 
+FROM centos/httpd
 ENV APP_DIR /app
 WORKDIR /var/www/html
-
 RUN yum -y install mod_ssl openssh
-COPY  /dist/ /var/www/html
+COPY  -from= As builder /dist/ /var/www/html
 COPY .env /var/www/html/.env
 COPY health.json /var/www/html/health.json
 COPY /startup.sh /app/bin/startup.sh
